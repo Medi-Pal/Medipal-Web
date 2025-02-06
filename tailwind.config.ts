@@ -8,21 +8,10 @@ const config: Config = {
   ],
   daisyui: {
     themes: [
-      {
-        mytheme: {          
-          "primary": "#000000",
-          "secondary": "#282828",
-          "accent": "#F37226",
-          "neutral": "#ff00ff",          
-          "base-100": "#ff00ff",          
-          "info": "#0000ff",          
-          "success": "#16a34a",          
-          "warning": "#f87171",          
-          "error": "#991b1b",
-          },
-        },
+      "light"
       ],
-  },
+    },
+  darkMode: ['selector', '[data-theme="night"]'],
   theme: {
     extend: {
       colors: {
