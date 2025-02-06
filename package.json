@@ -9,19 +9,26 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "14.2.14",
+    "@prisma/client": "^6.3.0",
+    "next": "^14.2.23",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^20.17.13",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "daisyui": "^4.12.14",
     "eslint": "^8",
     "eslint-config-next": "14.2.14",
     "postcss": "^8",
+    "prisma": "^6.3.0",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
-  }
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "description": "Medipal Web-App",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
