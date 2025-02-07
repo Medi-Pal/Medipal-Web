@@ -8,7 +8,8 @@ const config: Config = {
   ],
   daisyui: {
     themes: [
-      "light"
+      "light",
+      "dark"
       ],
     },
   darkMode: ['selector', '[data-theme="night"]'],

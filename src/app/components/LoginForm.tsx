@@ -13,9 +13,8 @@ export default function LoginForm() {
         </svg>
         <input
           type="number"
-          maxLength={10}
           className="grow"
-          placeholder="Phone Number"
+          placeholder="Medical License Number"
         />
       </label>
 
