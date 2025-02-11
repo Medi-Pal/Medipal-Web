@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        data-theme="dark"
+        data-theme="light"
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-dvh`}
       >
         {/* <div className="flex flex-col">
