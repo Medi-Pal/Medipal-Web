@@ -5,9 +5,5 @@ export default function AdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <div>
-      <AdminNavbar children={children} />
-    </div>
-  );
+  return <div>{children}</div>;
 }

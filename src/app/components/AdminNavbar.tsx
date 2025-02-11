@@ -32,22 +32,13 @@ export default function ({ children }: { children: ReactNode }) {
           <div className="hidden flex-none lg:block">
             <ul className="menu menu-horizontal">
               <li>
-                <Link
-                  className="text text-l"
-                  href={"/admin/doctor/registration"}
-                >
+                <Link className="text text-l" href={"/admin/doctors"}>
                   Registrations
-                </Link>
-              </li>
-              <li>
-                <Link className="text text-l" href={"/admin/doctor"}>
-                  Approved
                 </Link>
               </li>
             </ul>
           </div>
         </div>
-        {/* Page content here */}
         {children}
       </div>
       <div className="drawer-side">
@@ -57,11 +48,7 @@ export default function ({ children }: { children: ReactNode }) {
           className="drawer-overlay"
         ></label>
         <ul className="menu bg-base-200 min-h-full w-80 p-4 gap-4">
-          <SideBarItem
-            name={"Registrations"}
-            href={"/admin/doctor/registration"}
-          />
-          <SideBarItem name={"Approved"} href={"/admin/doctor"} />
+          <SideBarItem name={"Registrations"} href={"/admin/doctors"} />
         </ul>
       </div>
     </div>

@@ -1,5 +1,7 @@
+"use client";
 import { Key } from "react";
 import { Doctor } from "../../../utils/types";
+import ConfirmDelete from "./ConfirmDelete";
 
 export interface TableItemProps {
   doctor: Doctor;
@@ -15,8 +17,11 @@ export default function ({ doctors }: { doctors: Doctor[] }) {
             <th className="text text-base pl-8">Name</th>
             <th className="text text-base">Specialisation</th>
             <th className="text text-base">Phone Number</th>
+            <th className="text text-base">Verification Status</th>
             <th className="text text-base">Medical License</th>
             <th className="text text-base">Download License</th>
+            <th className="text text-base">Change Authority</th>
+            <th className="text text-base">Delete A/C</th>
           </tr>
         </thead>
         <tbody>
@@ -45,21 +50,29 @@ function TableItem({ doctor }: TableItemProps) {
       <td className="font-semibold text text-lg">
         {doctor.phoneNumber.toString()}
       </td>
-      <td>
-        <p>{doctor.medicalLicense}</p>
+      <td className="font-semibold text text-lg">
+        {doctor.status ? "Verified" : "Unverified"}
       </td>
+      <td className="font-semibold text text-lg">{doctor.medicalLicense}</td>
       <td>
         <button className="btn btn-neutral">
           <DownloadIcon />
         </button>
       </td>
       {doctor.status ? (
-        <></>
+        <td>
+          <button className="btn btn-warning">Revoke</button>
+        </td>
       ) : (
         <td>
           <button className="btn btn-primary">Approve</button>
         </td>
       )}
+      <td>
+        <ConfirmDelete doctor={doctor}>
+          <button className="btn btn-error">Delete</button>
+        </ConfirmDelete>
+      </td>
     </tr>
   );
 }
