@@ -13,6 +13,10 @@ export default function () {
     });
   }
 
+  function isLastMedicine() {
+    return medicines.length == 1;
+  }
+
   return (
     <div className="flex flex-col py-10 justify-center items-center gap-8">
       <h1 className="text text-2xl text-center">Medical Prescription Form</h1>
@@ -81,7 +85,13 @@ export default function () {
       <section className="flex flex-col justify-center gap-12 border-4 rounded-3xl p-12">
         <h2 className="text text-xl text-center">Prescription Details:</h2>
         {medicines.map((medicine, index) => {
-          return <MedicineItem key={index} medicine={medicine} />;
+          return (
+            <MedicineItem
+              isLast={isLastMedicine()}
+              key={index}
+              medicine={medicine}
+            />
+          );
         })}
         <button
           type="button"
@@ -115,6 +125,15 @@ export default function () {
         />
       </section>
 
+      <section className="flex flex-col p-4 gap-4">
+        <p className="text text-xl text-center">Additional Notes:</p>
+        <textarea
+          className="textarea textarea-bordered"
+          name="other"
+          id="other"
+        ></textarea>
+      </section>
+
       <button className="btn btn-success" type="submit">
         Submit Prescription
       </button>
@@ -122,10 +141,24 @@ export default function () {
   );
 }
 
-function MedicineItem({ medicine }: { medicine: any }) {
+function MedicineItem({
+  medicine,
+  isLast,
+}: {
+  medicine: any;
+  isLast: Boolean;
+}) {
+  const [other, setOther] = useState(false);
+
+  function handleSetOther() {
+    setOther((prev) => !prev);
+  }
+
   return (
     <div className="flex flex-col justify-center gap-4 border-2 p-8">
-      <label htmlFor="medicine">Medicine:</label>
+      <label className="label text-lg" htmlFor="medicine">
+        Medicine:
+      </label>
       <input
         className="input input-bordered"
         list="medicines"
@@ -140,14 +173,66 @@ function MedicineItem({ medicine }: { medicine: any }) {
         <option value="Benadryl" />
       </datalist>
 
-      <label htmlFor="dosage">Dosage:</label>
-      <input className="input input-bordered" type="text" name="dosage[]" />
+      <div>
+        <label htmlFor="dosage" className="label text-lg">
+          Unit:
+        </label>
+        <div className="menu menu-horizontal">
+          <input className="input input-bordered" type="text" name="dosage[]" />
+          <select className="select select-bordered" name="unit" id="unit">
+            <option value="ml">ml</option>
+            <option value="drop">drop</option>
+            <option value="tablet">tablet</option>
+          </select>
+        </div>
+      </div>
 
-      <label htmlFor="frequency">Frequency:</label>
-      <input className="input input-bordered" type="text" name="frequency[]" />
+      <p className="label text-lg">Frequency:</p>
+      <div className="form-control">
+        <label className="label cursor-pointer">
+          <span className="label-text text-base">Morning</span>
+          <input type="checkbox" className="checkbox" />
+        </label>
+      </div>
 
-      <label htmlFor="duration">Duration:</label>
+      <div className="form-control">
+        <label className="label cursor-pointer">
+          <span className="label-text text-base">Afternoon</span>
+          <input type="checkbox" className="checkbox" />
+        </label>
+      </div>
+
+      <div className="form-control">
+        <label className="label cursor-pointer">
+          <span className="label-text text-base">Night</span>
+          <input type="checkbox" className="checkbox" />
+        </label>
+      </div>
+
+      <div className="form-control">
+        <label className="label cursor-pointer">
+          <span className="label-text text-base">Other:</span>
+          <input
+            type="checkbox"
+            onChange={handleSetOther}
+            className="checkbox"
+          />
+        </label>
+      </div>
+      {other ? (
+        <textarea
+          className="textarea textarea-bordered"
+          name="other"
+          id="other"
+        ></textarea>
+      ) : (
+        <></>
+      )}
+      <label htmlFor="duration" className="label text-lg">
+        Dosage:
+      </label>
       <input className="input input-bordered" type="text" name="duration[]" />
+      {isLast ? <></> : <button className="btn btn-error">Remove</button>}
     </div>
   );
 }
