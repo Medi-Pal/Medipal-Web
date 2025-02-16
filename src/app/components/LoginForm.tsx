@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function LoginForm() {
   return (
     <div className="flex flex-col gap-5 justify-center items-center">
@@ -33,7 +35,9 @@ export default function LoginForm() {
         </svg>
         <input type="password" className="grow" placeholder="Password" />
       </label>
-
+      <Link href="/forgot-password">
+        <p className="text text-sm text-blue-600">Forgot Password?</p>
+      </Link>
       <button className="btn btn-success">Login</button>
     </div>
   );
