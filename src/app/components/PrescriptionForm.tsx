@@ -1,15 +1,24 @@
 "use client";
 
-import { randomUUID } from "crypto";
+const { v4: uuidv4 } = require("uuid");
 import { useState } from "react";
 
 export default function () {
-  const [medicines, setMedicines] = useState([{}]);
+  const [medicines, setMedicines] = useState([{ id: uuidv4() }]);
 
   function addMedicine() {
+    const id = uuidv4();
     setMedicines((prev) => {
-      prev = [...prev, {}];
+      prev = [...prev, { id }];
       return prev;
+    });
+  }
+
+  function removeMedicine(id: String) {
+    setMedicines((prev) => {
+      const newState = prev.filter((item) => item.id !== id);
+      console.log(prev, newState);
+      return newState;
     });
   }
 
@@ -18,11 +27,10 @@ export default function () {
   }
 
   return (
-    <div className="flex flex-col items-center bg-blue-200">
-      <div className="flex flex-col py-2 m-0 max-w-max glass">
+    <div className="flex flex-col items-center bg-blue-400">
+      <div className="flex flex-col p-6 max-w-full bg-blue-100">
         <h1 className="text text-2xl text-center">Medical Prescription Form</h1>
 
-        {/* <!-- Patient Information Section --> */}
         <section className="flex flex-col justify-center gap-2 p-4">
           <h2 className="text-center text-xl">Patient Information</h2>
           <label htmlFor="patient-name">Name:</label>
@@ -81,15 +89,14 @@ export default function () {
           />
         </section>
 
-        {/* <!-- Prescription Details Section --> */}
-
-        <section className="flex flex-col justify-center p-4 border-y-8">
+        <section className="flex flex-col justify-center py-2 border-y-8 border-slate-700">
           <h2 className="text text-xl text-center">Prescription Details:</h2>
           {medicines.map((medicine, index) => {
             return (
               <MedicineItem
                 isLast={isLastMedicine()}
-                key={index}
+                removeMedicine={() => removeMedicine(medicine.id)}
+                key={medicine.id}
                 medicine={medicine}
               />
             );
@@ -104,7 +111,6 @@ export default function () {
           </button>
         </section>
 
-        {/* <!-- Doctor's Information Section --> */}
         <section className="flex flex-col justify-center gap-2 p-4">
           <h2 className="text text-xl text-center">Doctor's Information</h2>
           <label htmlFor="doctor-name">Name:</label>
@@ -135,7 +141,7 @@ export default function () {
           ></textarea>
         </section>
 
-        <button className="btn btn-success" type="submit">
+        <button className="btn btn-accent" type="submit">
           Submit Prescription
         </button>
       </div>
@@ -144,9 +150,11 @@ export default function () {
 }
 
 function MedicineItem({
+  removeMedicine,
   medicine,
   isLast,
 }: {
+  removeMedicine: () => void;
   medicine: any;
   isLast: Boolean;
 }) {
@@ -157,7 +165,7 @@ function MedicineItem({
   }
 
   return (
-    <div className="flex flex-col justify-center p-8 gap-1">
+    <div className="flex flex-col justify-center p-8 gap-1 border-t-2  border-slate-400">
       <label className="label text-lg" htmlFor="medicine">
         Medicine:
       </label>
@@ -175,12 +183,11 @@ function MedicineItem({
         <option value="Benadryl" />
       </datalist>
 
-      <div>
-        <label htmlFor="dosage" className="label text-lg">
-          Unit:
-        </label>
+      <p className="label text-lg">Frequency:</p>
+
+      <div className="flex">
+        <p className="label text-base">Dosage Type:</p>
         <div className="menu menu-horizontal">
-          <input className="input input-bordered" type="text" name="dosage[]" />
           <select className="select select-bordered" name="unit" id="unit">
             <option value="ml">ml</option>
             <option value="drop">drop</option>
@@ -189,25 +196,24 @@ function MedicineItem({
         </div>
       </div>
 
-      <p className="label text-lg">Frequency:</p>
       <div className="form-control">
-        <label className="label cursor-pointer">
+        <label className="label cursor-pointer grid grid-cols-2">
           <span className="label-text text-base">Morning</span>
-          <input type="checkbox" className="checkbox" />
+          <input className="input input-sm" type="text" name="dosage[]" />
         </label>
       </div>
 
       <div className="form-control">
-        <label className="label cursor-pointer">
+        <label className="label cursor-pointer grid grid-cols-2">
           <span className="label-text text-base">Afternoon</span>
-          <input type="checkbox" className="checkbox" />
+          <input className="input input-sm" type="text" name="dosage[]" />
         </label>
       </div>
 
       <div className="form-control">
-        <label className="label cursor-pointer">
+        <label className="label cursor-pointer grid grid-cols-2">
           <span className="label-text text-base">Night</span>
-          <input type="checkbox" className="checkbox" />
+          <input className="input input-sm" type="text" name="dosage[]" />
         </label>
       </div>
 
@@ -231,10 +237,16 @@ function MedicineItem({
         <></>
       )}
       <label htmlFor="duration" className="label text-lg">
-        Dosage:
+        Duration:
       </label>
       <input className="input input-bordered" type="text" name="duration[]" />
-      {isLast ? <></> : <button className="btn btn-error">Remove</button>}
+      {isLast ? (
+        <></>
+      ) : (
+        <button className="btn btn-error" onClick={() => removeMedicine()}>
+          Remove
+        </button>
+      )}
     </div>
   );
 }

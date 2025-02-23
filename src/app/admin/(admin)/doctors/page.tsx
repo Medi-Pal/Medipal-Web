@@ -1,9 +1,11 @@
 import AdminDoctorTable from "@/app/components/AdminDoctorTable";
-import { Doctor } from "../../../../utils/types";
+import { Doctor } from "../../../../../utils/types";
+import { randomUUID, UUID } from "crypto";
 
 export default function () {
   const listOfDoctors: Doctor[] = [
     {
+      id: randomUUID(),
       name: "Gaurish Laad",
       specialisation: "Dermatologist",
       phoneNumber: 12123123,
@@ -11,6 +13,7 @@ export default function () {
       status: false,
     },
     {
+      id: randomUUID(),
       name: "Radhika Apte",
       specialisation: "Pediatrician",
       phoneNumber: 12312312321,
@@ -18,6 +21,7 @@ export default function () {
       status: false,
     },
     {
+      id: randomUUID(),
       name: "Radhika Apte",
       specialisation: "Pediatrician",
       phoneNumber: 12312312321,
@@ -25,6 +29,7 @@ export default function () {
       status: true,
     },
     {
+      id: randomUUID(),
       name: "Radhika Apte",
       specialisation: "Pediatrician",
       phoneNumber: 12312312321,

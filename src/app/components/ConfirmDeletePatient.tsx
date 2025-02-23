@@ -1,20 +1,20 @@
 "use client";
-import { Doctor } from "../../../utils/types";
+import { PatientDetails } from "../../../utils/types";
 
 export default function ({
-  doctor,
+  patient,
   children,
 }: {
-  doctor: Doctor;
+  patient: PatientDetails;
   children: React.ReactNode;
 }) {
   return (
     <>
-      <ModalButton doctor={doctor} />
+      <ModalButton patient={patient} />
       <dialog id="modal" className="modal modal-bottom sm:modal-middle">
         <div className="modal-box">
           <p className="text text-xl text-semibold py-4">
-            Do you want to delete the account of {doctor.name}
+            Do you want to delete the account of {patient.name}
           </p>
           <div className="modal-action">
             <form method="dialog flex">
@@ -28,7 +28,7 @@ export default function ({
   );
 }
 
-export function ModalButton({ doctor }: { doctor: Doctor }) {
+export function ModalButton({ patient }: { patient: PatientDetails }) {
   return (
     <button
       className="btn btn-error"

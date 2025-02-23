@@ -1,7 +1,7 @@
 "use client";
 import { Key } from "react";
 import { Doctor } from "../../../utils/types";
-import ConfirmDelete from "./ConfirmDelete";
+import Link from "next/link";
 
 export interface TableItemProps {
   doctor: Doctor;
@@ -14,19 +14,19 @@ export default function ({ doctors }: { doctors: Doctor[] }) {
       <table className="table">
         <thead>
           <tr>
-            <th className="text text-base pl-8">Name</th>
-            <th className="text text-base">Specialisation</th>
-            <th className="text text-base">Phone Number</th>
-            <th className="text text-base">Verification Status</th>
-            <th className="text text-base">Medical License</th>
-            <th className="text text-base">Download License</th>
-            <th className="text text-base">Change Authority</th>
-            <th className="text text-base">Delete A/C</th>
+            <th className="text text-lg">Name</th>
+            <th className="text text-lg">Specialisation</th>
+            <th className="text text-lg">Phone Number</th>
+            <th className="text text-lg">Verification Status</th>
+            <th className="text text-lg">Medical License</th>
+            <th className="text text-lg">Update</th>
           </tr>
         </thead>
         <tbody>
           {doctors.map((doctor) => {
-            return <TableItem doctor={doctor} key={`${doctor.name}`} />;
+            return (
+              <TableItem doctor={doctor} key={`${doctor.medicalLicense}`} />
+            );
           })}
         </tbody>
         <tfoot></tfoot>
@@ -39,39 +39,22 @@ function TableItem({ doctor }: TableItemProps) {
   return (
     <tr>
       <td>
-        <div className="flex items-center gap-3">
-          <div className="avatar"></div>
-          <div>
-            <div className="font-bold text text-lg">{doctor.name}</div>
-          </div>
-        </div>
+        <div className="text text-base">{doctor.name}</div>
       </td>
-      <td className="font-semibold text text-lg">{doctor.specialisation}</td>
-      <td className="font-semibold text text-lg">
-        {doctor.phoneNumber.toString()}
-      </td>
-      <td className="font-semibold text text-lg">
+      <td className="text text-base">{doctor.specialisation}</td>
+      <td className="text text-base">{doctor.phoneNumber.toString()}</td>
+      <td className="text text-base">
         {doctor.status ? "Verified" : "Unverified"}
       </td>
-      <td className="font-semibold text text-lg">{doctor.medicalLicense}</td>
       <td>
         <button className="btn btn-neutral">
           <DownloadIcon />
         </button>
       </td>
-      {doctor.status ? (
-        <td>
-          <button className="btn btn-warning">Revoke</button>
-        </td>
-      ) : (
-        <td>
-          <button className="btn btn-primary">Approve</button>
-        </td>
-      )}
       <td>
-        <ConfirmDelete doctor={doctor}>
-          <button className="btn btn-error">Delete</button>
-        </ConfirmDelete>
+        <Link href={`/admin/doctors/${doctor.id}`}>
+          <button className="btn btn-accent">Update</button>
+        </Link>
       </td>
     </tr>
   );

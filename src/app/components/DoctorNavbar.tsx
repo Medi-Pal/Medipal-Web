@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 
 export default function ({
   children,
-  title = "Administrator",
+  title = "Doctor",
 }: {
   title: string;
   children: ReactNode;
@@ -40,17 +40,17 @@ export default function ({
               <li>
                 <Link
                   className="text text-lg focus:bg-base-100"
-                  href={"/admin/doctors"}
+                  href={"/doctor/history"}
                 >
-                  Doctors
+                  Past Prescriptions
                 </Link>
               </li>
               <li>
                 <Link
                   className="text text-lg focus:bg-base-100"
-                  href={"/admin/patients"}
+                  href={"/doctor/prescription"}
                 >
-                  Patients
+                  Create Prescription
                 </Link>
               </li>
             </ul>
@@ -65,8 +65,11 @@ export default function ({
           className="drawer-overlay"
         ></label>
         <ul className="menu bg-primary min-h-full w-80 p-4 gap-4">
-          <SideBarItem name={"Doctors"} href={"/admin/doctors"} />
-          <SideBarItem name={"Patients"} href={"/admin/patients"} />
+          <SideBarItem name={"Past Prescriptions"} href={"/doctor/history"} />
+          <SideBarItem
+            name={"Create Prescription"}
+            href={"/doctor/prescription"}
+          />
         </ul>
       </div>
     </div>
