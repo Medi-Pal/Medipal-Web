@@ -9,10 +9,8 @@ const config: Config = {
   daisyui: {
     themes: [
       "light",
-      "dark"
       ],
     },
-  darkMode: ['selector', '[data-theme="night"]'],
   theme: {
     extend: {
       colors: {
