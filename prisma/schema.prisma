@@ -26,12 +26,13 @@ model Doctor {
 
 model Prescription {
   id            Int                       @id @default(autoincrement())
-  Doctor        String
-  isUsedBy      BigInt // patient's contact number
   createdOn     DateTime                  @default(now()) // date and time at which prescription was generated
   medicine_list MedicinesOnPrescription[]
 
-  doctor_regNo    Doctor  @relation(fields: [Doctor], references: [Registration_No])
+  Doctor       String
+  doctor_regNo Doctor @relation(fields: [Doctor], references: [Registration_No])
+
+  isUsedBy        BigInt // patient's contact number
   patient_contact Patient @relation(fields: [isUsedBy], references: [PhoneNumber])
 }
 
@@ -52,16 +53,17 @@ enum DosageType {
 }
 
 model MedicinesOnPrescription {
-  prescriptionID Int
-  medicineID     Int
-  dosageType     DosageType // quantity measurement of the medicine
-  timeOfDay      String // morning or afternoon or night
-  dosage         Int // quantity of the medicine as prescribed for that timeOfDay
-  duration       Int? // total number of instances of the medicine to be taken
-  instruction    String? // Any other instructions for the same medicine like before food or after food
+  dosageType  DosageType // quantity measurement of the medicine
+  timeOfDay   String // morning or afternoon or night
+  dosage      Int // quantity of the medicine as prescribed for that timeOfDay
+  duration    Int? // total number of instances of the medicine to be taken
+  instruction String? // Any other instructions for the same medicine like before food or after food
 
-  prescription Prescription @relation(fields: [prescriptionID], references: [id])
-  medicine     Medicines    @relation(fields: [medicineID], references: [Serial_No])
+  prescriptionID Int
+  prescription   Prescription @relation(fields: [prescriptionID], references: [id])
+
+  medicineID Int
+  medicine   Medicines @relation(fields: [medicineID], references: [Serial_No])
 
   @@id([prescriptionID, medicineID]) // composite key
 }
@@ -84,7 +86,7 @@ model Emergency_Contacts {
   FirstName   String
   LastName    String?
   relation    String? // optional: wife or daughter, etc.
-  relatedBy   BigInt // patient's phone number to be linked to the Patient model
 
+  relatedBy       BigInt // patient's phone number to be linked to the Patient model
   related_patient Patient @relation(fields: [relatedBy], references: [PhoneNumber])
 }
