@@ -20,7 +20,8 @@
     "react": "^18",
     "react-dom": "^18",
     "react-qr-code": "^2.0.15",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "cloudinary": "^2.5.1"
   },
   "devDependencies": {
     "@types/node": "^20.17.13",
