@@ -13,15 +13,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Doctor {
-  Registration_No String  @id
-  FirstName       String
-  LastName        String?
-  Age             Int
-  ContactNumber   BigInt
-  Email           String
+model Admin {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+}
 
-  Prescription Prescription[]
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String
+  expires      DateTime
+
+  doctorID String
+  doctor   Doctor @relation(fields: [doctorID], references: [Registration_No])
+}
+
+model Doctor {
+  Registration_No String @id
+  Name            String
+  Specialisation  String
+  ContactNumber   String
+  Email           String @unique
+  password        String 
+
+  Prescription   Prescription[]
+  doctor_session Session[]
 }
 
 model Prescription {
@@ -32,7 +48,7 @@ model Prescription {
   Doctor       String
   doctor_regNo Doctor @relation(fields: [Doctor], references: [Registration_No])
 
-  isUsedBy        BigInt // patient's contact number
+  isUsedBy        String // patient's contact number
   patient_contact Patient @relation(fields: [isUsedBy], references: [PhoneNumber])
 }
 
@@ -69,10 +85,9 @@ model MedicinesOnPrescription {
 }
 
 model Patient {
-  PhoneNumber BigInt  @id
-  FirstName   String
-  LastName    String?
-  Age         Int
+  PhoneNumber String  @id
+  Name        String
+  Age         Int?
   City        String?
   State       String
   Country     String
@@ -82,11 +97,10 @@ model Patient {
 }
 
 model Emergency_Contacts {
-  PhoneNumber BigInt  @id
-  FirstName   String
-  LastName    String?
+  PhoneNumber String  @id
+  Name        String
   relation    String? // optional: wife or daughter, etc.
 
-  relatedBy       BigInt // patient's phone number to be linked to the Patient model
+  relatedBy       String // patient's phone number to be linked to the Patient model
   related_patient Patient @relation(fields: [relatedBy], references: [PhoneNumber])
 }

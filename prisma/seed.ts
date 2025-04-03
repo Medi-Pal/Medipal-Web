@@ -38,14 +38,10 @@ async function main() {
   // here we do a nested query in this order prescription -> MedicinesOnPrescription -> Medicines
   await prisma.prescription.create({
     data: {
-      Doctor: doctors.find(
-        (doctor) =>
-          doctor.FirstName === "Ravish" && doctor.LastName === "Kolvakar"
-      )?.Registration_No!,
-      isUsedBy: patients.find(
-        (patient) =>
-          patient.FirstName === "Brandon" && patient.LastName === "Noronha"
-      )?.PhoneNumber!,
+      Doctor: doctors.find((doctor) => doctor.Name === "Ravish Kolvakar")
+        ?.Registration_No!,
+      isUsedBy: patients.find((patient) => patient.Name === "Brandon Noronha")
+        ?.PhoneNumber!,
       createdOn: today,
       medicine_list: {
         create: [
@@ -81,6 +77,13 @@ async function main() {
           },
         ],
       },
+    },
+  });
+
+  await prisma.admin.create({
+    data: {
+      username: "brandon07",
+      password: "medipal123",
     },
   });
 

@@ -2,13 +2,32 @@
 CREATE TYPE "DosageType" AS ENUM ('ml', 'drop', 'tablet');
 
 -- CreateTable
+CREATE TABLE "Admin" (
+    "id" SERIAL NOT NULL,
+    "username" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+
+    CONSTRAINT "Admin_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Session" (
+    "id" TEXT NOT NULL,
+    "sessionToken" TEXT NOT NULL,
+    "expires" TIMESTAMP(3) NOT NULL,
+    "doctorID" TEXT NOT NULL,
+
+    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Doctor" (
     "Registration_No" TEXT NOT NULL,
-    "FirstName" TEXT NOT NULL,
-    "LastName" TEXT,
-    "Age" INTEGER NOT NULL,
-    "ContactNumber" BIGINT NOT NULL,
+    "Name" TEXT NOT NULL,
+    "Specialisation" TEXT NOT NULL,
+    "ContactNumber" TEXT NOT NULL,
     "Email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
 
     CONSTRAINT "Doctor_pkey" PRIMARY KEY ("Registration_No")
 );
@@ -16,9 +35,9 @@ CREATE TABLE "Doctor" (
 -- CreateTable
 CREATE TABLE "Prescription" (
     "id" SERIAL NOT NULL,
-    "Doctor" TEXT NOT NULL,
-    "isUsedBy" BIGINT NOT NULL,
     "createdOn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "Doctor" TEXT NOT NULL,
+    "isUsedBy" TEXT NOT NULL,
 
     CONSTRAINT "Prescription_pkey" PRIMARY KEY ("id")
 );
@@ -36,23 +55,22 @@ CREATE TABLE "Medicines" (
 
 -- CreateTable
 CREATE TABLE "MedicinesOnPrescription" (
-    "prescriptionID" INTEGER NOT NULL,
-    "medicineID" INTEGER NOT NULL,
     "dosageType" "DosageType" NOT NULL,
     "timeOfDay" TEXT NOT NULL,
     "dosage" INTEGER NOT NULL,
     "duration" INTEGER,
     "instruction" TEXT,
+    "prescriptionID" INTEGER NOT NULL,
+    "medicineID" INTEGER NOT NULL,
 
     CONSTRAINT "MedicinesOnPrescription_pkey" PRIMARY KEY ("prescriptionID","medicineID")
 );
 
 -- CreateTable
 CREATE TABLE "Patient" (
-    "PhoneNumber" BIGINT NOT NULL,
-    "FirstName" TEXT NOT NULL,
-    "LastName" TEXT,
-    "Age" INTEGER NOT NULL,
+    "PhoneNumber" TEXT NOT NULL,
+    "Name" TEXT NOT NULL,
+    "Age" INTEGER,
     "City" TEXT,
     "State" TEXT NOT NULL,
     "Country" TEXT NOT NULL,
@@ -62,14 +80,22 @@ CREATE TABLE "Patient" (
 
 -- CreateTable
 CREATE TABLE "Emergency_Contacts" (
-    "PhoneNumber" BIGINT NOT NULL,
-    "FirstName" TEXT NOT NULL,
-    "LastName" TEXT,
+    "PhoneNumber" TEXT NOT NULL,
+    "Name" TEXT NOT NULL,
     "relation" TEXT,
-    "relatedBy" BIGINT NOT NULL,
+    "relatedBy" TEXT NOT NULL,
 
     CONSTRAINT "Emergency_Contacts_pkey" PRIMARY KEY ("PhoneNumber")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Admin_username_key" ON "Admin"("username");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Doctor_Email_key" ON "Doctor"("Email");
+
+-- AddForeignKey
+ALTER TABLE "Session" ADD CONSTRAINT "Session_doctorID_fkey" FOREIGN KEY ("doctorID") REFERENCES "Doctor"("Registration_No") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Prescription" ADD CONSTRAINT "Prescription_Doctor_fkey" FOREIGN KEY ("Doctor") REFERENCES "Doctor"("Registration_No") ON DELETE RESTRICT ON UPDATE CASCADE;
