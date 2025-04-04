@@ -34,21 +34,21 @@ model Doctor {
   Specialisation  String
   ContactNumber   String
   Email           String @unique
-  password        String 
+  password        String
 
   Prescription   Prescription[]
   doctor_session Session[]
 }
 
 model Prescription {
-  id            Int                       @id @default(autoincrement())
-  createdOn     DateTime                  @default(now()) // date and time at which prescription was generated
+  id            String                    @id @default(uuid())
+  createdOn     DateTime                  @default(now())
   medicine_list MedicinesOnPrescription[]
+  signature     String? // doctor's digital signature
+  Doctor        String
+  doctor_regNo  Doctor                    @relation(fields: [Doctor], references: [Registration_No])
 
-  Doctor       String
-  doctor_regNo Doctor @relation(fields: [Doctor], references: [Registration_No])
-
-  isUsedBy        String // patient's contact number
+  isUsedBy        String
   patient_contact Patient @relation(fields: [isUsedBy], references: [PhoneNumber])
 }
 
@@ -69,19 +69,31 @@ enum DosageType {
 }
 
 model MedicinesOnPrescription {
-  dosageType  DosageType // quantity measurement of the medicine
-  timeOfDay   String // morning or afternoon or night
-  dosage      Int // quantity of the medicine as prescribed for that timeOfDay
-  duration    Int? // total number of instances of the medicine to be taken
-  instruction String? // Any other instructions for the same medicine like before food or after food
+  dosageType  DosageType
+  dosage      Int
+  duration    Int?
+  instruction String?
+  times       MedicineTiming[]
 
-  prescriptionID Int
+  prescriptionID String
   prescription   Prescription @relation(fields: [prescriptionID], references: [id])
 
   medicineID Int
   medicine   Medicines @relation(fields: [medicineID], references: [Serial_No])
 
-  @@id([prescriptionID, medicineID]) // composite key
+  @@id([prescriptionID, medicineID])
+}
+
+model MedicineTiming {
+  id        Int    @id @default(autoincrement())
+  timeOfDay String
+  dosage    Int
+
+  prescriptionID String
+  medicineID     Int
+  medicine       MedicinesOnPrescription @relation(fields: [prescriptionID, medicineID], references: [prescriptionID, medicineID])
+
+  @@unique([prescriptionID, medicineID, timeOfDay])
 }
 
 model Patient {

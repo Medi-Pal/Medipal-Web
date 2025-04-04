@@ -1,8 +1,52 @@
+"use client";
+
 import Link from "next/link";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useState, FormEvent } from "react";
 
 export default function LoginForm() {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const licenseNumber = formData.get("licenseNumber");
+    const password = formData.get("password");
+
+    try {
+      const result = await signIn("credentials", {
+        licenseNumber,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError("Invalid license number or password");
+      } else {
+        router.push("/doctor/prescription");
+        router.refresh();
+      }
+    } catch (error) {
+      setError("An error occurred during login");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <div className="flex flex-col gap-5 justify-center items-center">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5 justify-center items-center">
+      {error && (
+        <div className="alert alert-error">
+          <span>{error}</span>
+        </div>
+      )}
+
       <label className="input input-bordered flex items-center gap-2">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -14,9 +58,11 @@ export default function LoginForm() {
           <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
         </svg>
         <input
-          type="number"
+          name="licenseNumber"
+          type="text"
           className="grow"
           placeholder="Medical License Number"
+          required
         />
       </label>
 
@@ -33,12 +79,26 @@ export default function LoginForm() {
             clipRule="evenodd"
           />
         </svg>
-        <input type="password" className="grow" placeholder="Password" />
+        <input
+          name="password"
+          type="password"
+          className="grow"
+          placeholder="Password"
+          required
+        />
       </label>
+
       <Link href="/forgot-password">
         <p className="text text-sm text-blue-600">Forgot Password?</p>
       </Link>
-      <button className="btn btn-success">Login</button>
-    </div>
+
+      <button
+        type="submit"
+        className="btn btn-success"
+        disabled={loading}
+      >
+        {loading ? "Logging in..." : "Login"}
+      </button>
+    </form>
   );
 }
