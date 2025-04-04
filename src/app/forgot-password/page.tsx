@@ -1,9 +1,11 @@
 import ForgotPassword from "../components/ForgotPassword";
 
-export default function () {
+export default function ForgotPasswordPage() {
   return (
-    <div className="flex items-center justify-center h-full">
-      <ForgotPassword />
+    <div className="min-h-screen flex justify-center items-center p-4 bg-white">
+      <div className="w-full max-w-md">
+        <ForgotPassword />
+      </div>
     </div>
   );
 }

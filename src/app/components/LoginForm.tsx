@@ -60,7 +60,7 @@ export default function LoginForm() {
         <input
           name="licenseNumber"
           type="text"
-          className="grow"
+          className="grow text-black"
           placeholder="Medical License Number"
           required
         />
@@ -82,7 +82,7 @@ export default function LoginForm() {
         <input
           name="password"
           type="password"
-          className="grow"
+          className="grow text-black"
           placeholder="Password"
           required
         />

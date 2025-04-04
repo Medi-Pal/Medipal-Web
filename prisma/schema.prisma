@@ -43,13 +43,14 @@ model Doctor {
 model Prescription {
   id            String                    @id @default(uuid())
   createdOn     DateTime                  @default(now())
-  medicine_list MedicinesOnPrescription[]
   signature     String? // doctor's digital signature
   Doctor        String
   doctor_regNo  Doctor                    @relation(fields: [Doctor], references: [Registration_No])
 
   isUsedBy        String
   patient_contact Patient @relation(fields: [isUsedBy], references: [PhoneNumber])
+  
+  medicine_list MedicinesOnPrescription[]
 }
 
 model Medicines {
