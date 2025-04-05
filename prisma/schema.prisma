@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -23,13 +17,12 @@ model Session {
   id           String   @id @default(uuid())
   sessionToken String
   expires      DateTime
-
-  doctorID String
-  doctor   Doctor @relation(fields: [doctorID], references: [Registration_No])
+  doctorID     String
+  doctor       Doctor   @relation(fields: [doctorID], references: [Registration_No])
 }
 
 model Doctor {
-  Registration_No String @id
+  Registration_No String         @id
   Name            String
   Specialisation  String
   ContactNumber   String
@@ -54,19 +47,12 @@ model Prescription {
 }
 
 model Medicines {
-  Serial_No   Int     @id @default(autoincrement())
+  Serial_No   Int                       @id @default(autoincrement())
   brandName   String
-  type        String? // optional: syrup or capsule or cream, etc.
+  type        String?
   drugName    String
   description String?
-
-  medicines MedicinesOnPrescription[]
-}
-
-enum DosageType {
-  ml
-  drop
-  tablet
+  medicines   MedicinesOnPrescription[]
 }
 
 model MedicinesOnPrescription {
@@ -98,22 +84,26 @@ model MedicineTiming {
 }
 
 model Patient {
-  PhoneNumber String  @id
-  Name        String
-  Age         Int?
-  City        String?
-  State       String
-  Country     String
-
-  prescription    Prescription[]
+  PhoneNumber     String               @id
+  Name            String
+  Age             Int?
+  City            String?
+  State           String
+  Country         String
   family_contacts Emergency_Contacts[]
+  prescription    Prescription[]
 }
 
 model Emergency_Contacts {
-  PhoneNumber String  @id
-  Name        String
-  relation    String? // optional: wife or daughter, etc.
-
-  relatedBy       String // patient's phone number to be linked to the Patient model
+  PhoneNumber     String  @id
+  Name            String
+  relation        String?
+  relatedBy       String
   related_patient Patient @relation(fields: [relatedBy], references: [PhoneNumber])
+}
+
+enum DosageType {
+  ml
+  drop
+  tablet
 }

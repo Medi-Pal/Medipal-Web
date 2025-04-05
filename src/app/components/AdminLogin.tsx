@@ -1,6 +1,33 @@
-export default function () {
+'use client';
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+export default function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const response = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    if (response.ok) {
+      router.push("/admin/doctors");
+    } else {
+      console.error("Login failed");
+      alert("Invalid username or password.");
+    }
+  };
+
   return (
-    <div className="flex flex-col gap-5 justify-center items-center">
+    <form onSubmit={handleLogin} className="flex flex-col gap-5 justify-center items-center">
       <label className="input input-bordered flex items-center gap-2">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -11,7 +38,13 @@ export default function () {
           <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
           <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
         </svg>
-        <input type="number" className="grow" placeholder="Username" />
+        <input
+          type="text"
+          className="grow"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
       </label>
 
       <label className="input input-bordered flex items-center gap-2">
@@ -27,10 +60,16 @@ export default function () {
             clipRule="evenodd"
           />
         </svg>
-        <input type="password" className="grow" placeholder="Password" />
+        <input
+          type="password"
+          className="grow"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
       </label>
 
-      <button className="btn btn-success">Login</button>
-    </div>
+      <button type="submit" className="btn btn-success">Login</button>
+    </form>
   );
 }

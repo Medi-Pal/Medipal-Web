@@ -1,41 +1,48 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
-interface Doctor {
-  name: string;
-  specialisation: string;
-  phoneNumber: string;
-  email: string;
-  password: string;
-  medicalLicenseNumber: string;
-}
+const prisma = new PrismaClient();
 
-const doctors: Doctor[] = []; // Temporary in-memory storage for demonstration
-
-export async function POST(request: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = await request.json();
-    const { name, specialisation, phoneNumber, email, password, confirmPassword, medicalLicenseNumber } = body;
-
-    if (!name || !specialisation || !phoneNumber || !email || !password || !confirmPassword || !medicalLicenseNumber) {
-      return NextResponse.json({ error: "All fields are required." }, { status: 400 });
+    const formData = await req.formData();
+    const Name = formData.get('Name')?.toString();
+    const Specialisation = formData.get('Specialisation')?.toString();
+    const ContactNumber = formData.get('ContactNumber')?.toString();
+    const Email = formData.get('Email')?.toString();
+    const password = formData.get('password')?.toString();
+    const ConfirmPassword = formData.get('ConfirmPassword')?.toString();
+    const Registration_No = formData.get('Registration_No')?.toString();
+    const medicalLicenseFile = formData.get('medicalLicenseFile'); // File object
+    
+    if (!Name || !Specialisation || !ContactNumber || !Email || !password || !ConfirmPassword || !Registration_No) {
+      return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
     }
 
-    if (password !== confirmPassword) {
-      return NextResponse.json({ error: "Password and confirm password do not match." }, { status: 400 });
+    if (password !== ConfirmPassword) {
+      return NextResponse.json({ error: 'Password and confirm password do not match.' }, { status: 400 });
     }
 
-    // Check if the doctor already exists
-    const existingDoctor = doctors.find((doc) => doc.email === email);
+    const existingDoctor = await prisma.doctor.findUnique({ where: { Email } });
     if (existingDoctor) {
-      return NextResponse.json({ error: "Doctor with this email already exists." }, { status: 409 });
+      return NextResponse.json({ error: 'Doctor with this email already exists.' }, { status: 409 });
     }
 
-    // Register the doctor
-    const newDoctor: Doctor = { name, specialisation, phoneNumber, email, password, medicalLicenseNumber };
-    doctors.push(newDoctor);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newDoctor = await prisma.doctor.create({
+      data: {
+        Name,                 // Ensure this matches the schema's field name
+        Specialisation,       // Ensure this matches the schema's field name
+        ContactNumber,        // Ensure this matches the schema's field name
+        Email,                // Ensure this matches the schema's field name
+        password: hashedPassword, // Ensure this matches the schema's field name
+        Registration_No,      // Ensure this matches the schema's field name
+      },
+    });
 
-    return NextResponse.json({ message: "Doctor registered successfully.", doctor: newDoctor }, { status: 201 });
+    return NextResponse.json({ message: 'Doctor registered successfully.', doctor: newDoctor }, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: "An error occurred while registering the doctor." }, { status: 500 });
+    return NextResponse.json({ error: 'An error occurred while registering the doctor.' }, { status: 500 });
   }
 }
