@@ -1,4 +1,4 @@
-import AdminDoctorTable from "@/app/components/AdminDoctorTable";
+import AdminDoctorTable from "@/app/api/admin/doctors/AdminDoctorTable";
 import { Doctor } from "../../../../../utils/types";
 import { randomUUID, UUID } from "crypto";
 

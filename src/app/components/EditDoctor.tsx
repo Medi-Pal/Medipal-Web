@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import ConfirmDelete from "./ConfirmDelete";
-import { DownloadIcon } from "./AdminDoctorTable";
+import { DownloadIcon } from "../api/admin/doctors/AdminDoctorTable";
 
 export default function EditDoctorDetails() {
   const doctor = {

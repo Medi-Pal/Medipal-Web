@@ -1,6 +1,6 @@
 "use client";
 import { Key } from "react";
-import { Doctor } from "../../../utils/types";
+import { Doctor } from "../../../../../utils/types";
 import Link from "next/link";
 
 export interface TableItemProps {
