@@ -44,7 +44,7 @@ function TableItem({ doctor }: TableItemProps) {
       <td className="text text-base">{doctor.specialisation}</td>
       <td className="text text-base">{doctor.phoneNumber.toString()}</td>
       <td className="text text-base">
-        {doctor.status ? "Verified" : "Unverified"}
+        {doctor.isVerified ? "Verified" : "Unverified"}
       </td>
       <td>
         <button className="btn btn-neutral">

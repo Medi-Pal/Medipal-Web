@@ -11,6 +11,7 @@ model Admin {
   id       Int    @id @default(autoincrement())
   username String @unique
   password String
+  email    String @unique
 }
 
 model Session {
@@ -22,29 +23,26 @@ model Session {
 }
 
 model Doctor {
-  Registration_No String  @id
+  Registration_No String         @id
   Name            String
   Specialisation  String
   ContactNumber   String
-  Email           String  @unique
+  Email           String         @unique
   password        String
-  isVerified      Boolean @default(false)
-
-  Prescription   Prescription[]
-  doctor_session Session[]
+  isVerified      Boolean        @default(false)
+  Prescription    Prescription[]
+  doctor_session  Session[]
 }
 
 model Prescription {
-  id           String   @id @default(uuid())
-  createdOn    DateTime @default(now())
-  signature    String? // doctor's digital signature
-  Doctor       String
-  doctor_regNo Doctor   @relation(fields: [Doctor], references: [Registration_No])
-
+  id              String                    @id @default(uuid())
+  createdOn       DateTime                  @default(now())
+  Doctor          String
   isUsedBy        String
-  patient_contact Patient @relation(fields: [isUsedBy], references: [PhoneNumber])
-
-  medicine_list MedicinesOnPrescription[]
+  signature       String?
+  medicine_list   MedicinesOnPrescription[]
+  doctor_regNo    Doctor                    @relation(fields: [Doctor], references: [Registration_No])
+  patient_contact Patient                   @relation(fields: [isUsedBy], references: [PhoneNumber])
 }
 
 model Medicines {
@@ -57,26 +55,23 @@ model Medicines {
 }
 
 model MedicinesOnPrescription {
-  dosageType  DosageType
-  dosage      Int
-  duration    Int?
-  instruction String?
-  times       MedicineTiming[]
-
+  dosageType     DosageType
+  dosage         Int
+  duration       Int?
+  instruction    String?
   prescriptionID String
-  prescription   Prescription @relation(fields: [prescriptionID], references: [id])
-
-  medicineID Int
-  medicine   Medicines @relation(fields: [medicineID], references: [Serial_No])
+  medicineID     Int
+  times          MedicineTiming[]
+  medicine       Medicines        @relation(fields: [medicineID], references: [Serial_No])
+  prescription   Prescription     @relation(fields: [prescriptionID], references: [id])
 
   @@id([prescriptionID, medicineID])
 }
 
 model MedicineTiming {
-  id        Int    @id @default(autoincrement())
-  timeOfDay String
-  dosage    Int
-
+  id             Int                     @id @default(autoincrement())
+  timeOfDay      String
+  dosage         Int
   prescriptionID String
   medicineID     Int
   medicine       MedicinesOnPrescription @relation(fields: [prescriptionID, medicineID], references: [prescriptionID, medicineID])
