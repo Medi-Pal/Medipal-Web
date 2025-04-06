@@ -13,8 +13,23 @@ export async function GET(
         id: params.id,
       },
       include: {
-        doctor_regNo: true,
-        patient_contact: true,
+        doctor_regNo: {
+          select: {
+            Name: true,
+            Registration_No: true,
+            Specialisation: true,
+          },
+        },
+        patient_contact: {
+          select: {
+            Name: true,
+            PhoneNumber: true,
+            Age: true,
+            City: true,
+            State: true,
+            Country: true,
+          },
+        },
         medicine_list: {
           include: {
             medicine: true,
@@ -30,6 +45,11 @@ export async function GET(
         { status: 404 }
       );
     }
+
+    console.log(
+      "Returning prescription with diagnosis:",
+      prescription.diagnosis
+    );
 
     return NextResponse.json(prescription);
   } catch (error) {
@@ -57,7 +77,7 @@ export async function PUT(
     // Verify prescription exists and belongs to the doctor
     const existingPrescription = await prisma.prescription.findUnique({
       where: { id: params.id },
-      include: { doctor: true },
+      include: { doctor_regNo: true },
     });
 
     if (!existingPrescription) {
@@ -68,7 +88,8 @@ export async function PUT(
     }
 
     if (
-      existingPrescription.doctor.licenseNumber !== session.user.licenseNumber
+      existingPrescription.doctor_regNo.Registration_No !==
+      session.user.licenseNumber
     ) {
       return NextResponse.json(
         { error: "Unauthorized to modify this prescription" },
@@ -77,7 +98,7 @@ export async function PUT(
     }
 
     // Update patient contact if it exists, create if it doesn't
-    const patient = await prisma.patientContact.upsert({
+    const patient = await prisma.patient.upsert({
       where: { PhoneNumber: patientContact },
       update: {
         Name: patientDetails.name,
@@ -97,32 +118,58 @@ export async function PUT(
     });
 
     // Update prescription
+    // First, delete all existing medicine timings for this prescription
+    await prisma.medicineTiming.deleteMany({
+      where: {
+        prescriptionID: params.id,
+      },
+    });
+
+    // Next, delete all existing medicines for this prescription
+    await prisma.medicinesOnPrescription.deleteMany({
+      where: {
+        prescriptionID: params.id,
+      },
+    });
+
+    // Now update prescription with new medicines
+    console.log(
+      "Updating prescription with diagnosis:",
+      patientDetails.diagnosis
+    );
+
     const updatedPrescription = await prisma.prescription.update({
       where: { id: params.id },
       data: {
-        diagnosis: patientDetails.diagnosis,
-        patient_contact: {
-          connect: { PhoneNumber: patient.PhoneNumber },
-        },
+        isUsedBy: patient.PhoneNumber,
+        diagnosis: patientDetails.diagnosis || null,
         medicine_list: {
-          deleteMany: {},
           create: medicines.map((med: any) => ({
             medicine: {
-              connect: { Serial_No: med.medicineId },
+              connect: {
+                Serial_No: med.medicineId,
+              },
             },
             dosageType: med.dosageType,
-            times: med.times,
+            dosage: med.times[0].dosage,
             duration: med.duration,
             instruction: med.instruction,
+            times: {
+              create: med.times.map((time: any) => ({
+                timeOfDay: time.timeOfDay,
+                dosage: time.dosage,
+              })),
+            },
           })),
         },
       },
       include: {
-        doctor: true,
+        doctor_regNo: true,
         patient_contact: true,
         medicine_list: {
           include: {
             medicine: true,
+            times: true,
           },
         },
       },

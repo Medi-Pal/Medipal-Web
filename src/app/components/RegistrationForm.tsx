@@ -43,11 +43,11 @@ const RegistrationForm: React.FC = () => {
         method: 'POST',
         body: payload,
       });
-      
+
       console.log("Status:", response.status);
       const responseData = await response.json().catch(() => ({}));
       console.log("Response:", responseData);
-      
+
       if (!response.ok) {
         alert(responseData.message || "Registration failed.");
         return;
@@ -62,41 +62,41 @@ const RegistrationForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5 justify-center items-center">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5 justify-center items-center w-full">
       {/* Name */}
-      <label className="input input-bordered flex items-center gap-2">
+      <label className="input input-bordered flex items-center gap-2 w-full">
         <input
           type="text"
           name="Name"
           value={formData.Name}
           onChange={handleChange}
-          className="grow"
+          className="grow text-black"
           placeholder="Name"
           required
         />
       </label>
 
       {/* Specialization */}
-      <label className="input input-bordered flex items-center gap-2">
+      <label className="input input-bordered flex items-center gap-2 w-full">
         <input
           type="text"
           name="Specialisation"
           value={formData.Specialisation}
           onChange={handleChange}
-          className="grow"
+          className="grow text-black"
           placeholder="Specialization"
           required
         />
       </label>
 
       {/* Phone Number */}
-      <label className="input input-bordered flex items-center gap-2">
+      <label className="input input-bordered flex items-center gap-2 w-full">
         <input
           type="tel"
           name="ContactNumber"
           value={formData.ContactNumber}
           onChange={handleChange}
-          className="grow"
+          className="grow text-black"
           placeholder="Phone Number"
           maxLength={10}
           required
@@ -104,65 +104,66 @@ const RegistrationForm: React.FC = () => {
       </label>
 
       {/* Email */}
-      <label className="input input-bordered flex items-center gap-2">
+      <label className="input input-bordered flex items-center gap-2 w-full">
         <input
           type="email"
           name="Email"
           value={formData.Email}
           onChange={handleChange}
-          className="grow"
+          className="grow text-black"
           placeholder="Email"
           required
         />
       </label>
 
       {/* Password */}
-      <label className="input input-bordered flex items-center gap-2">
+      <label className="input input-bordered flex items-center gap-2 w-full">
         <input
           type="password"
           name="password"
           value={formData.password}
           onChange={handleChange}
-          className="grow"
+          className="grow text-black"
           placeholder="Password"
           required
         />
       </label>
 
       {/* Confirm Password */}
-      <label className="input input-bordered flex items-center gap-2">
+      <label className="input input-bordered flex items-center gap-2 w-full">
         <input
           type="password"
           name="ConfirmPassword"
           value={formData.ConfirmPassword}
           onChange={handleChange}
-          className="grow"
+          className="grow text-black"
           placeholder="Confirm Password"
           required
         />
       </label>
 
       {/* Registration Number */}
-      <label className="input input-bordered flex items-center gap-2">
+      <label className="input input-bordered flex items-center gap-2 w-full">
         <input
           type="text"
           name="Registration_No"
           value={formData.Registration_No}
           onChange={handleChange}
-          className="grow"
+          className="grow text-black"
           placeholder="Registration Number"
           required
         />
       </label>
 
       {/* License File Upload */}
-      <label className="flex flex-col gap-1">
-        <span className="font-semibold">Medical License Upload:</span>
+      <label className="flex flex-col gap-1 w-full">
+        <span className="font-semibold text-gray-800">Medical License Upload:</span>
         <input
           type="file"
           name="medicalLicenseFile"
           onChange={handleChange}
           accept=".pdf,.jpg,.png"
+          className="text-black"
           required
         />
       </label>

@@ -1,5 +1,7 @@
+"use client";
+
 import Register from "../components/Register";
 
-export default function () {
+export default function RegisterPage() {
   return <Register />;
 }

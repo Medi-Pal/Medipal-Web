@@ -99,6 +99,15 @@ export default function LoginForm() {
       >
         {loading ? "Logging in..." : "Login"}
       </button>
+
+      <div className="text-center mt-4">
+        <p className="text-sm text-gray-600 mb-2">Not registered? Click below</p>
+        <Link href="/register">
+          <button type="button" className="btn btn-outline btn-primary">
+            Register
+          </button>
+        </Link>
+      </div>
     </form>
   );
 }

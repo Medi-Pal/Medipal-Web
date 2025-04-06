@@ -103,6 +103,7 @@ export async function POST(request: Request) {
       data: {
         Doctor: session.user.licenseNumber,
         isUsedBy: patient.PhoneNumber,
+        diagnosis: patientDetails.diagnosis || null,
         medicine_list: {
           create: medicines.map((med: any) => ({
             medicine: {

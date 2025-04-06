@@ -40,6 +40,7 @@ model Prescription {
   Doctor          String
   isUsedBy        String
   signature       String?
+  diagnosis       String?
   medicine_list   MedicinesOnPrescription[]
   doctor_regNo    Doctor                    @relation(fields: [Doctor], references: [Registration_No])
   patient_contact Patient                   @relation(fields: [isUsedBy], references: [PhoneNumber])
