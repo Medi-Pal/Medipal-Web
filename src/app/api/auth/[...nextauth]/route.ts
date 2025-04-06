@@ -29,6 +29,17 @@ export const authOptions: NextAuthOptions = {
             );
 
             if (passwordMatch) {
+              if (!user.isVerified) {
+                // If the doctor is not verified, return a special indicator
+                return {
+                  id: user.Registration_No,
+                  email: user.Email,
+                  name: user.Name,
+                  role: "unverified",
+                  licenseNumber: user.Registration_No,
+                };
+              }
+
               return {
                 id: user.Registration_No,
                 email: user.Email,

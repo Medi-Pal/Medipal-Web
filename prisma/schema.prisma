@@ -22,27 +22,28 @@ model Session {
 }
 
 model Doctor {
-  Registration_No String         @id
+  Registration_No String  @id
   Name            String
   Specialisation  String
   ContactNumber   String
-  Email           String @unique
+  Email           String  @unique
   password        String
+  isVerified      Boolean @default(false)
 
   Prescription   Prescription[]
   doctor_session Session[]
 }
 
 model Prescription {
-  id            String                    @id @default(uuid())
-  createdOn     DateTime                  @default(now())
-  signature     String? // doctor's digital signature
-  Doctor        String
-  doctor_regNo  Doctor                    @relation(fields: [Doctor], references: [Registration_No])
+  id           String   @id @default(uuid())
+  createdOn    DateTime @default(now())
+  signature    String? // doctor's digital signature
+  Doctor       String
+  doctor_regNo Doctor   @relation(fields: [Doctor], references: [Registration_No])
 
   isUsedBy        String
   patient_contact Patient @relation(fields: [isUsedBy], references: [PhoneNumber])
-  
+
   medicine_list MedicinesOnPrescription[]
 }
 

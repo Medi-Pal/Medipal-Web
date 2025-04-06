@@ -21,8 +21,8 @@ export async function middleware(request: NextRequest) {
     if (!token) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
-    if (token.role !== "doctor") {
-      return NextResponse.redirect(new URL("/unauthorized", request.url));
+    if (token.role === "unverified") {
+      return NextResponse.redirect(new URL("/status", request.url));
     }
   }
 
