@@ -1,8 +1,22 @@
-import { Medicine, Patient } from "../../../utils/types";
+import { Patient } from "../../../utils/types";
+
+// Local Medicine interface for the component
+interface LocalMedicine {
+  name: string;
+  dosageType: string;
+  frequency: {
+    morning: number;
+    afternoon: number;
+    night: number;
+    other?: string;
+  };
+  duration: number;
+}
 
 export default function PrescriptionDetails() {
   const prescription = {
     patient: {
+      id: "P001",
       name: "Sahil Dcunha",
       age: 20,
       gender: "Male",
@@ -58,7 +72,7 @@ export default function PrescriptionDetails() {
   );
 }
 
-function MedicineDetails({ medicine }: { medicine: Medicine }) {
+function MedicineDetails({ medicine }: { medicine: LocalMedicine }) {
   return <div></div>;
 }
 

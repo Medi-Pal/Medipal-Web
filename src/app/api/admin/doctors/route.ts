@@ -15,6 +15,7 @@ export async function GET() {
         ContactNumber: true,
         Email: true,
         isVerified: true,
+        licenseImageUrl: true,
       },
     });
 
@@ -33,6 +34,7 @@ export async function GET() {
       specialisation: doctor.Specialisation,
       phoneNumber: doctor.ContactNumber,
       medicalLicense: doctor.Registration_No,
+      licenseImageUrl: doctor.licenseImageUrl,
       isVerified: doctor.isVerified,
     }));
 

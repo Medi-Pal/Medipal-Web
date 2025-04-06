@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
@@ -34,13 +34,24 @@ export default function ResetPasswordPage() {
       return;
     }
 
+    if (!otp.trim()) {
+      setError("Please enter the OTP from your email");
+      return;
+    }
+
     setLoading(true);
 
     try {
+      console.log("Submitting reset request with:", { email, otp });
+      
       const response = await fetch("/api/reset-password", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp, newPassword }),
+        body: JSON.stringify({ 
+          email: email,
+          otp: otp.trim(), 
+          newPassword 
+        }),
       });
 
       const data = await response.json();
@@ -129,5 +140,17 @@ export default function ResetPasswordPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex justify-center items-center">
+        <div className="loading loading-spinner loading-lg"></div>
+      </div>
+    }>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

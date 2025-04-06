@@ -4,6 +4,7 @@ export interface Doctor {
   specialisation: string;
   phoneNumber: string;
   medicalLicense: string;
+  licenseImageUrl?: string;
   isVerified: boolean;
 }
 

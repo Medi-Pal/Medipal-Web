@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { generateOTP, sendEmail } from "@/lib/utils";
 import bcrypt from "bcryptjs";
+import { cookies } from 'next/headers';
 
-// Store OTPs temporarily (in production, use Redis or similar)
-const otpStore = new Map<string, { otp: string; timestamp: number }>();
+// Helper functions for OTP storage
+const getOtpCookieName = (email: string) => `otp_${Buffer.from(email).toString('base64')}`;
 
 export async function POST(req: Request) {
   try {
@@ -31,10 +32,23 @@ export async function POST(req: Request) {
 
     // Store OTP with timestamp (expires in 10 minutes)
     const expiryTime = Date.now() + 10 * 60 * 1000; // 10 minutes from now
-    otpStore.set(email, {
+    
+    // Store in cookies
+    const cookieStore = cookies();
+    const otpData = JSON.stringify({
       otp,
       timestamp: expiryTime,
     });
+    
+    cookieStore.set({
+      name: getOtpCookieName(email),
+      value: otpData,
+      httpOnly: true,
+      path: '/',
+      expires: new Date(expiryTime),
+      secure: process.env.NODE_ENV === 'production',
+    });
+    
     console.log("Stored OTP with expiry:", new Date(expiryTime).toISOString());
 
     // Send email with OTP
@@ -48,7 +62,7 @@ export async function POST(req: Request) {
     } catch (emailError) {
       console.error("Failed to send OTP email:", emailError);
       // Clean up stored OTP if email fails
-      otpStore.delete(email);
+      cookieStore.delete(getOtpCookieName(email));
       throw new Error(
         "Failed to send OTP email: " +
           (emailError instanceof Error ? emailError.message : "Unknown error")
@@ -75,27 +89,38 @@ export async function PUT(req: Request) {
     const { email, otp, newPassword } = await req.json();
     console.log("Processing OTP verification for:", email);
 
-    // Verify OTP
-    const storedOTP = otpStore.get(email);
-    console.log("Found stored OTP:", storedOTP ? "yes" : "no");
-
-    if (!storedOTP) {
+    // Verify OTP from cookies
+    const cookieStore = cookies();
+    const otpCookie = cookieStore.get(getOtpCookieName(email));
+    
+    if (!otpCookie || !otpCookie.value) {
       console.log("No OTP found for email:", email);
       return NextResponse.json(
         { error: "Invalid or expired OTP" },
         { status: 400 }
       );
     }
+    
+    let storedData;
+    try {
+      storedData = JSON.parse(otpCookie.value);
+    } catch (e) {
+      console.error("Failed to parse OTP data:", e);
+      return NextResponse.json(
+        { error: "Invalid OTP data" },
+        { status: 400 }
+      );
+    }
 
     const now = Date.now();
-    const isExpired = now > storedOTP.timestamp;
-    const isMatch = storedOTP.otp === otp;
+    const isExpired = now > storedData.timestamp;
+    const isMatch = storedData.otp === otp;
 
     console.log("OTP validation:", {
       isMatch,
       isExpired,
       currentTime: new Date(now).toISOString(),
-      expiryTime: new Date(storedOTP.timestamp).toISOString(),
+      expiryTime: new Date(storedData.timestamp).toISOString(),
     });
 
     if (!isMatch || isExpired) {
@@ -116,7 +141,7 @@ export async function PUT(req: Request) {
     console.log("Password updated successfully for:", email);
 
     // Clear OTP after successful password reset
-    otpStore.delete(email);
+    cookieStore.delete(getOtpCookieName(email));
 
     return NextResponse.json({ message: "Password updated successfully" });
   } catch (error) {

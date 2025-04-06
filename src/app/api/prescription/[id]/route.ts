@@ -103,6 +103,7 @@ export async function PUT(
       update: {
         Name: patientDetails.name,
         Age: patientDetails.age ? parseInt(patientDetails.age) : null,
+        Gender: patientDetails.gender || null,
         City: patientDetails.city,
         State: patientDetails.state,
         Country: patientDetails.country,
@@ -111,6 +112,7 @@ export async function PUT(
         PhoneNumber: patientContact,
         Name: patientDetails.name,
         Age: patientDetails.age ? parseInt(patientDetails.age) : null,
+        Gender: patientDetails.gender || null,
         City: patientDetails.city,
         State: patientDetails.state,
         Country: patientDetails.country,
@@ -180,6 +182,63 @@ export async function PUT(
     console.error("Error updating prescription:", error);
     return NextResponse.json(
       { error: "Failed to update prescription" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    // Allow deletion without authentication for temporary prescriptions
+    // This is necessary for the cancel functionality to work
+    const prescription = await prisma.prescription.findUnique({
+      where: { id: params.id },
+      include: { doctor_regNo: true },
+    });
+
+    if (!prescription) {
+      return NextResponse.json(
+        { error: "Prescription not found" },
+        { status: 404 }
+      );
+    }
+
+    // Check for temp prescriptions or authenticated doctor
+    const isTemp = prescription.isUsedBy?.startsWith('temp_');
+    const isDoctorAuthorized = session?.user?.licenseNumber === prescription.doctor_regNo?.Registration_No;
+    
+    if (!isTemp && !isDoctorAuthorized) {
+      return NextResponse.json(
+        { error: "Unauthorized to delete this prescription" },
+        { status: 403 }
+      );
+    }
+
+    // Delete medicine timings first
+    await prisma.medicineTiming.deleteMany({
+      where: { prescriptionID: params.id }
+    });
+
+    // Delete medicines on prescription
+    await prisma.medicinesOnPrescription.deleteMany({
+      where: { prescriptionID: params.id }
+    });
+
+    // Delete the prescription
+    await prisma.prescription.delete({
+      where: { id: params.id }
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Failed to delete prescription:", error);
+    return NextResponse.json(
+      { error: "Failed to delete prescription" },
       { status: 500 }
     );
   }

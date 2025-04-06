@@ -22,20 +22,32 @@ async function main() {
     data: familyContactData,
   });
 
-  // seeding the medicines model
-  // await prisma.medicines.createMany({
-  //   data: medicineData,
-  // });
+  // Create medicines first
+  const crocin = await prisma.medicines.create({
+    data: {
+      brandName: "Crocin",
+      type: "tablet",
+      drugName: "Paracetamol + Caffein",
+      description: "It is used for the relief of headache",
+    }
+  });
 
-  // fetching the all the medicine objects inorder to get their id's
-  // const medicines = await prisma.medicines.findMany();
+  const cherrycough = await prisma.medicines.create({
+    data: {
+      brandName: "Cherrycough",
+      type: "syrup",
+      drugName: "hydrochloride",
+      description: "used for cough and respiratory congestion relief",
+    }
+  });
+
   const doctors = await prisma.doctor.findMany();
   const patients = await prisma.patient.findMany();
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // here we do a nested query in this order prescription -> MedicinesOnPrescription -> Medicines
+  // Create prescription with medicine references
   await prisma.prescription.create({
     data: {
       Doctor: doctors.find((doctor) => doctor.Name === "Ravish Kolvakar")
@@ -46,59 +58,44 @@ async function main() {
       medicine_list: {
         create: [
           {
-            medicine: {
-              create: {
-                brandName: "Crocin",
-                type: "tablet",
-                drugName: "Paracetamol + Caffein",
-                description: "It is used for the relief of headache",
-              },
-            },
+            medicineID: crocin.Serial_No,
             dosageType: "tablet",
-            timeOfDay: "morning",
             dosage: 1,
             duration: 5,
             instruction: "after breakfast",
+            times: {
+              create: {
+                timeOfDay: "morning",
+                dosage: 1
+              }
+            }
           },
           {
-            medicine: {
-              create: {
-                brandName: "Cherrycough",
-                type: "syrup",
-                drugName: "hydrochloride",
-                description: "used for cough and respiratory congestion relief",
-              },
-            },
+            medicineID: cherrycough.Serial_No,
             dosageType: "ml",
-            timeOfDay: "afternoon",
             dosage: 10,
             duration: 10,
             instruction: "after launch",
+            times: {
+              create: {
+                timeOfDay: "afternoon",
+                dosage: 10
+              }
+            }
           },
         ],
       },
     },
   });
 
+  // Create admin with required email field
   await prisma.admin.create({
     data: {
       username: "brandon07",
       password: "medipal123",
+      email: "admin@medipal.com",
     },
   });
-
-  // seeding the prescription model
-  // await prisma.prescription.createMany({
-  //   data: prescriptions,
-  // });
-
-  // for (const prescriptionData of prescriptions) {
-  //   const prescription = await prisma.prescription.create({
-  //     data:{
-  //       createdOn:
-  //     }
-  //   });
-  // }
 }
 
 main();

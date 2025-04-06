@@ -16,109 +16,102 @@ Font.register({
 const styles = StyleSheet.create({
   page: {
     fontFamily: 'Helvetica',
-    padding: 0,
+    padding: 40,
     backgroundColor: 'white',
   },
-  headerSection: {
-    backgroundColor: '#102654', // Navy blue background
-    paddingVertical: 20,
-    paddingHorizontal: 40,
-    color: 'white',
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  headerText: {
-    marginLeft: 10,
-  },
-  prescriptionTitle: {
-    fontSize: 18,
+  doctorHeader: {
+    fontSize: 36,
     fontWeight: 'bold',
-    color: 'white',
+    textAlign: 'center',
+    marginBottom: 5,
   },
-  doctorName: {
+  doctorRegNo: {
     fontSize: 14,
-    color: 'white',
-    marginTop: 5,
+    textAlign: 'center',
+    marginBottom: 40,
   },
-  doctorSpecialty: {
+  headerRight: {
+    position: 'absolute',
+    top: 40,
+    right: 40,
+    fontSize: 14,
+    paddingBottom: 10,
+  },
+  patientInfo: {
+    marginTop: 40,
+  },
+  patientDetail: {
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  contactInfo: {
+    position: 'absolute',
+    top: 190,
+    right: 40,
+    fontSize: 14,
+    textAlign: 'right',
+  },
+  rxSymbol: {
+    fontSize: 60,
+    color: '#0066FF',
+    marginTop: 30,
+    marginLeft: 40,
+  },
+  dosageNote: {
+    marginLeft: 220,
     fontSize: 12,
-    color: 'white',
-    marginTop: 2,
+    marginTop: 10,
+    marginBottom: 5,
+    fontStyle: 'italic',
   },
-  topWave: {
-    height: 40,
+  medicineTable: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    marginTop: 10,
   },
-  bottomWave: {
-    height: 40,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  contentSection: {
-    padding: 40,
-    flex: 1,
-  },
-  patientInfoSection: {
+  tableHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderBottomColor: '#f0f0f0',
     borderBottomWidth: 1,
-    paddingBottom: 20,
-    marginBottom: 20,
-  },
-  patientInfoColumn: {
-    width: '48%',
-  },
-  label: {
-    fontSize: 10,
-    color: '#666',
-    marginBottom: 2,
-  },
-  infoLine: {
-    fontSize: 10,
+    borderBottomColor: '#000',
+    paddingBottom: 5,
     marginBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    paddingBottom: 2,
+    fontSize: 14,
+    fontWeight: 'bold',
   },
-  medicineSection: {
-    flex: 1,
-    marginBottom: 20,
+  medicineName: {
+    width: '40%',
   },
-  watermark: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    opacity: 0.05,
-    width: 200,
-    height: 200,
+  dosage: {
+    width: '40%',
   },
-  footerSection: {
-    paddingHorizontal: 40,
-    paddingBottom: 40,
+  total: {
+    width: '20%',
+    textAlign: 'center',
+  },
+  tableRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
+    marginBottom: 15,
+    fontSize: 14,
   },
-  hospitalInfo: {
-    fontSize: 10,
-    color: '#333',
+  instructions: {
+    fontSize: 12,
+    marginLeft: 150,
+    fontStyle: 'italic',
+    marginBottom: 15,
+    color: '#555',
   },
-  signatureSection: {
-    marginRight: 40,
-    alignItems: 'center',
+  signature: {
+    position: 'absolute',
+    bottom: 60,
+    right: 40,
+    textAlign: 'center',
   },
   signatureLine: {
     width: 150,
     borderBottomWidth: 1,
     borderBottomColor: '#000',
     marginBottom: 5,
-  },
-  signatureText: {
-    fontSize: 10,
   },
 });
 
@@ -134,11 +127,14 @@ interface PrescriptionDetails {
   patient_contact: {
     Name: string;
     PhoneNumber: string;
+    Age?: number;
+    Gender?: string;
   };
   medicine_list: Array<{
     medicine: {
       brandName: string;
       drugName: string;
+      Serial_No: number;
     };
     dosageType: string;
     dosage: number;
@@ -151,125 +147,125 @@ interface PrescriptionDetails {
   }>;
 }
 
-const PrescriptionDocument = ({ prescription, diagnosisText }: { prescription: PrescriptionDetails, diagnosisText: string }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      {/* Medical symbol watermark */}
-      <View style={styles.watermark}>
-        <Svg width={200} height={200} viewBox="0 0 24 24">
-          <Path
-            d="M12 2L4 5v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V5l-8-3zm0 4c1.1 0 2 1.3 2 3s-.9 3-2 3-2-1.3-2-3 .9-3 2-3z"
-            fill="#f0f0f0"
-          />
-        </Svg>
-      </View>
+// Helper function to format dosage pattern like "0-1-0-0"
+const formatDosagePattern = (times: Array<{timeOfDay: string, dosage: number}>) => {
+  const pattern = [0, 0, 0, 0]; // morning-afternoon-evening-night
+  
+  times.forEach(time => {
+    switch(time.timeOfDay.toLowerCase()) {
+      case 'morning':
+        pattern[0] = time.dosage;
+        break;
+      case 'afternoon':
+        pattern[1] = time.dosage;
+        break;
+      case 'evening':
+        pattern[2] = time.dosage;
+        break;
+      case 'night':
+        pattern[3] = time.dosage;
+        break;
+    }
+  });
+  
+  return pattern.join('-');
+};
 
-      {/* Header with curved design */}
-      <View style={styles.headerSection}>
-        {/* Medical symbol */}
-        <Svg width={30} height={30} viewBox="0 0 24 24">
-          <Path
-            d="M12 2L4 5v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V5l-8-3zm0 4c1.1 0 2 1.3 2 3s-.9 3-2 3-2-1.3-2-3 .9-3 2-3z"
-            fill="white"
-          />
-        </Svg>
+const calculateTotalDosage = (pattern: string, duration: number | null) => {
+  if (!duration) return 0;
+  
+  const doses = pattern.split('-').map(Number);
+  const dailyDoses = doses.reduce((sum, dose) => sum + dose, 0);
+  return dailyDoses * duration;
+};
 
-        <View style={styles.headerText}>
-          <Text style={styles.prescriptionTitle}>PRESCRIPTION</Text>
-          <Text style={styles.doctorName}>Dr. {prescription.doctor_regNo.Name}</Text>
-          <Text style={styles.doctorSpecialty}>{prescription.doctor_regNo.Specialisation} Doctor</Text>
-        </View>
-
-        {/* RX Logo at top right */}
-        <View style={{ position: 'absolute', right: 40, top: '50%', transform: 'translateY(-50%)' }}>
-          <Text style={{ color: 'white', fontSize: 30, fontWeight: 'bold' }}>Rx</Text>
-        </View>
-      </View>
-
-      <View style={styles.contentSection}>
-        {/* Patient details section */}
-        <View style={styles.patientInfoSection}>
-          <View style={styles.patientInfoColumn}>
-            <Text style={styles.label}>Patient Name</Text>
-            <Text style={styles.infoLine}>{prescription.patient_contact.Name}</Text>
-
-            <Text style={styles.label}>Date</Text>
-            <Text style={styles.infoLine}>{new Date(prescription.createdOn).toLocaleDateString()}</Text>
+const PrescriptionDocument = ({ prescription, diagnosisText }: { prescription: PrescriptionDetails, diagnosisText: string }) => {
+  // Format the date as DD-MM-YY
+  const formattedDate = new Date(prescription.createdOn).toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit'
+  }).replace(/\//g, '-');
+  
+  // Extract patient gender and age (if available)
+  const patientAge = prescription.patient_contact.Age ? `${prescription.patient_contact.Age} yrs` : '';
+  const patientGender = prescription.patient_contact.Gender ? prescription.patient_contact.Gender.toLowerCase() : 'male';
+  
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        {/* Doctor's name and registration */}
+        <Text style={styles.doctorHeader}>Dr. {prescription.doctor_regNo.Name}</Text>
+        <Text style={styles.doctorRegNo}>Reg. no.{prescription.doctor_regNo.Registration_No}</Text>
+        
+        {/* Header with date and contact info only (removed prescription ID) */}
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 20 }}>
+          <View style={{ textAlign: 'right' }}>
+            <Text>Date: {formattedDate}</Text>
+            <Text>Contact no: {prescription.patient_contact.PhoneNumber}</Text>
           </View>
-
-          <View style={styles.patientInfoColumn}>
-            <Text style={styles.label}>Phone</Text>
-            <Text style={styles.infoLine}>{prescription.patient_contact.PhoneNumber}</Text>
-
-            <Text style={styles.label}>Diagnosis</Text>
-            <Text style={styles.infoLine}>
-              {/* Try multiple fallbacks for diagnosis */}
-              {prescription.diagnosis ? prescription.diagnosis :
-                diagnosisText && diagnosisText !== '-' ? diagnosisText : 'None'}
-            </Text>
+        </View>
+        
+        {/* Patient information */}
+        <View style={styles.patientInfo}>
+          <Text style={styles.patientDetail}>Patient name: {prescription.patient_contact.Name}</Text>
+          <Text style={styles.patientDetail}>Age: {patientAge}</Text>
+          <Text style={styles.patientDetail}>Sex: {patientGender}</Text>
+          <Text style={styles.patientDetail}>Diagnosis: {diagnosisText || 'None'}</Text>
+        </View>
+        
+        {/* Rx symbol */}
+        <Text style={styles.rxSymbol}>Rx</Text>
+        
+        {/* Dosage reference */}
+        <Text style={styles.dosageNote}>The dosage refers to morning-afternoon-evening-night</Text>
+        
+        {/* Medicine table */}
+        <View style={styles.medicineTable}>
+          <View style={styles.tableHeader}>
+            <Text style={styles.medicineName}>Medicine name</Text>
+            <Text style={styles.dosage}>dosage</Text>
+            <Text style={styles.total}>total</Text>
+          </View>
+          
+          {prescription.medicine_list.map((med, index) => {
+            const dosagePattern = formatDosagePattern(med.times);
+            const totalDoses = calculateTotalDosage(dosagePattern, med.duration);
+            
+            return (
+              <View key={index}>
+                <View style={styles.tableRow}>
+                  <Text style={styles.medicineName}>{med.medicine.brandName}</Text>
+                  <Text style={styles.dosage}>{dosagePattern}</Text>
+                  <Text style={styles.total}>{med.duration || 9}</Text>
+                </View>
+                {med.instruction && (
+                  <Text style={styles.instructions}>Instructions: {med.instruction}</Text>
+                )}
+              </View>
+            );
+          })}
+        </View>
+        
+        {/* Footer with signature and prescription ID */}
+        <View style={{ position: 'absolute', bottom: 60, width: '100%' }}>
+          {/* Prescription ID on left */}
+          <Text style={{ position: 'absolute', left: 40, bottom: 0, fontSize: 12 }}>
+            Prescription id: {prescription.id}
+          </Text>
+          
+          {/* Signature on right */}
+          <View style={styles.signature}>
+            <View style={styles.signatureLine} />
+            <Text>Digitally signed by</Text>
+            <Text>Doctor's name</Text>
+            <Text>({prescription.doctor_regNo.Specialisation})</Text>
           </View>
         </View>
-
-        {/* Medicine list */}
-        <View style={styles.medicineSection}>
-          {prescription.medicine_list.map((med, index) => (
-            <View key={index} style={{ marginBottom: 15 }}>
-              <Text style={{ fontSize: 12, marginBottom: 3 }}>
-                • {med.medicine.brandName} ({med.medicine.drugName})
-              </Text>
-              <Text style={{ fontSize: 10, marginLeft: 10, marginBottom: 2 }}>
-                Dosage: {med.dosage} {med.dosageType}
-              </Text>
-              <Text style={{ fontSize: 10, marginLeft: 10, marginBottom: 2 }}>
-                Timing: {med.times.map(t => `${t.timeOfDay} (${t.dosage})`).join(', ')}
-              </Text>
-              {med.duration && (
-                <Text style={{ fontSize: 10, marginLeft: 10, marginBottom: 2 }}>
-                  Duration: {med.duration} days
-                </Text>
-              )}
-              {med.instruction && (
-                <Text style={{ fontSize: 10, marginLeft: 10, marginBottom: 2 }}>
-                  Instructions: {med.instruction}
-                </Text>
-              )}
-            </View>
-          ))}
-        </View>
-      </View>
-
-      {/* Footer with signature */}
-      <View style={styles.footerSection}>
-        <View style={{ width: '40%' }}></View>
-
-        <View style={styles.signatureSection}>
-          <View style={styles.signatureLine} />
-          <Text style={styles.signatureText}>Signature</Text>
-          <Text style={{ fontSize: 10, marginTop: 5, color: '#444' }}>
-            Digitally signed by
-          </Text>
-          <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#333' }}>
-            Dr. {prescription.doctor_regNo.Name}
-          </Text>
-        </View>
-      </View>
-
-      {/* Bottom wave design */}
-      <View style={styles.bottomWave}>
-        <Svg viewBox="0 0 1440 320" height="100%" width="100%">
-          <Path
-            d="M0,192L48,202.7C96,213,192,235,288,229.3C384,224,480,192,576,176C672,160,768,160,864,176C960,192,1056,224,1152,213.3C1248,203,1344,149,1392,122.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-            fill="#F7931E" // Orange curve
-          />
-          <Path
-            d="M0,192L48,181.3C96,171,192,149,288,160C384,171,480,213,576,213.3C672,213,768,171,864,160C960,149,1056,171,1152,176C1248,181,1344,171,1392,165.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-            fill="#1E90FF" // Blue curve
-          />
-        </Svg>
-      </View>
-    </Page>
-  </Document>
-);
+      </Page>
+    </Document>
+  );
+};
 
 export default function PrescriptionQRPage() {
   const router = useRouter();
@@ -314,24 +310,38 @@ export default function PrescriptionQRPage() {
   const handleReuse = async () => {
     if (!prescription) return;
     setLoading(true);
+    console.log("Starting reuse with prescription:", prescription.id);
 
     try {
+      // Simplify the payload to just the essential medicine information
+      const simplifiedMedicines = prescription.medicine_list.map(med => ({
+        medicineId: med.medicine.Serial_No,
+        dosageType: med.dosageType,
+        dosage: med.dosage,
+        duration: med.duration,
+        instruction: med.instruction,
+        times: med.times.map(t => ({
+          timeOfDay: t.timeOfDay,
+          dosage: t.dosage
+        }))
+      }));
+
+      console.log("Simplified medicines:", simplifiedMedicines);
+
+      // Create a temporary phone number for patient contact (required by API)
+      const tempPhoneNumber = "temp_" + Date.now();
+      
       const response = await fetch("/api/prescription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          medicines: prescription.medicine_list.map(med => ({
-            medicineId: med.medicine.Serial_No,
-            dosageType: med.dosageType,
-            duration: med.duration,
-            instruction: med.instruction,
-            times: med.times
-          })),
-          patientContact: "",
+          medicines: simplifiedMedicines,
+          // Use a temporary phone number instead of empty string
+          patientContact: tempPhoneNumber,
           patientDetails: {
-            name: "",
+            name: "Temporary Patient",
             age: null,
-            city: null,
+            city: "",
             state: "",
             country: "",
             diagnosis: ""
@@ -339,13 +349,29 @@ export default function PrescriptionQRPage() {
         })
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
+      const responseText = await response.text();
+      console.log("API Response:", responseText);
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error("Failed to parse response:", responseText);
+        throw new Error("Invalid response from server");
+      }
 
-      router.push(`/doctor/prescription?id=${data.id}&reuse=true`);
+      if (!response.ok) {
+        throw new Error(data.error || `Failed with status: ${response.status}`);
+      }
+
+      // On success, navigate to the new prescription
+      const newUrl = `/doctor/prescription?id=${data.id}&reuse=true`;
+      console.log("Navigating to:", newUrl);
+      
+      window.location.href = newUrl; // Use direct navigation to avoid router issues
     } catch (err) {
       console.error('Failed to reuse prescription:', err);
-      setError('Failed to create new prescription');
+      setError(err instanceof Error ? err.message : 'Failed to create new prescription');
     } finally {
       setLoading(false);
     }

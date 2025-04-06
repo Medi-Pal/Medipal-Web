@@ -1,19 +1,10 @@
 "use client";
 import AdminNavbar from "@/app/components/AdminNavbar";
 import AdminAuthGuard from "@/app/components/AdminAuthGuard";
-import { ReactNode, useState, createContext, useContext } from "react";
+import { ReactNode, useState } from "react";
+import { SearchContext } from "./searchContext";
 
-// Create a context to share the search query across components
-export const SearchContext = createContext({
-  searchQuery: '',
-  setSearchQuery: (query: string) => { },
-});
-
-export function useSearch() {
-  return useContext(SearchContext);
-}
-
-export default function ({ children }: { children: ReactNode }) {
+export default function AdminLayout({ children }: { children: ReactNode }) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = (query: string) => {

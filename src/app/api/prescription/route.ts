@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../../../lib/prisma"; // Adjust the import path based on your project structure
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "../auth/[...nextauth]/auth-options";
 
 export async function GET(req: NextRequest) {
   try {
@@ -17,16 +17,17 @@ export async function GET(req: NextRequest) {
     if (id) {
       // Get specific prescription
       const prescription = await prisma.prescription.findUnique({
-        where: { id: parseInt(id) },
+        where: { id: id },
         include: {
           medicine_list: {
             include: {
               medicine: true,
-            },
+              times: true
+            }
           },
           doctor_regNo: true,
-          patient_contact: true,
-        },
+          patient_contact: true
+        }
       });
 
       if (!prescription) {
@@ -84,6 +85,7 @@ export async function POST(request: Request) {
       update: {
         Name: patientDetails.name,
         Age: patientDetails.age ? parseInt(patientDetails.age) : null,
+        Gender: patientDetails.gender || null,
         City: patientDetails.city || null,
         State: patientDetails.state || "Unknown",
         Country: patientDetails.country || "Unknown",
@@ -92,6 +94,7 @@ export async function POST(request: Request) {
         PhoneNumber: patientContact,
         Name: patientDetails.name,
         Age: patientDetails.age ? parseInt(patientDetails.age) : null,
+        Gender: patientDetails.gender || null,
         City: patientDetails.city || null,
         State: patientDetails.state || "Unknown",
         Country: patientDetails.country || "Unknown",
@@ -101,7 +104,7 @@ export async function POST(request: Request) {
     // Create prescription
     const prescription = await prisma.prescription.create({
       data: {
-        Doctor: session.user.licenseNumber,
+        Doctor: session.user.licenseNumber || "",
         isUsedBy: patient.PhoneNumber,
         diagnosis: patientDetails.diagnosis || null,
         medicine_list: {

@@ -52,13 +52,21 @@ export default function PrescriptionForm() {
     name: "",
     phoneNumber: "",
     age: "",
+    gender: "male",
     city: "",
     state: "",
     country: "",
     diagnosis: ""
   });
   const [selectedMedicines, setSelectedMedicines] = useState<SelectedMedicine[]>([]);
+  const [loadingPrescription, setLoadingPrescription] = useState(false);
 
+  // Get search params for reuse functionality
+  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+  const prescriptionId = searchParams.get('id');
+  const isReuse = searchParams.get('reuse') === 'true';
+
+  // Load medicines
   useEffect(() => {
     fetch("/api/medicines")
       .then((res) => res.json())
@@ -72,6 +80,45 @@ export default function PrescriptionForm() {
       });
   }, []);
 
+  // Load prescription data for reuse
+  useEffect(() => {
+    if (prescriptionId && isReuse && !loadingPrescription) {
+      setLoadingPrescription(true);
+      console.log("Loading prescription for reuse:", prescriptionId);
+      
+      fetch(`/api/prescription/${prescriptionId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.error) throw new Error(data.error);
+          console.log("Loaded prescription data:", data);
+          
+          // Only load medicine data, leave patient data empty
+          if (data.medicine_list && data.medicine_list.length > 0) {
+            const medicineList = data.medicine_list.map((med: any) => ({
+              medicineId: med.medicine.Serial_No,
+              dosageType: med.dosageType,
+              dosage: med.dosage,
+              duration: med.duration,
+              instruction: med.instruction,
+              times: med.times.map((t: any) => ({
+                timeOfDay: t.timeOfDay,
+                dosage: t.dosage
+              }))
+            }));
+            console.log("Setting medicines:", medicineList);
+            setSelectedMedicines(medicineList);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load prescription for reuse:", err);
+          setError("Failed to load prescription data for reuse");
+        })
+        .finally(() => {
+          setLoadingPrescription(false);
+        });
+    }
+  }, [prescriptionId, isReuse]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -84,6 +131,7 @@ export default function PrescriptionForm() {
           name: patientData.name,
           phoneNumber: patientData.phoneNumber,
           age: patientData.age,
+          gender: patientData.gender,
           city: patientData.city,
           state: patientData.state || "Unknown",
           country: patientData.country || "Unknown",
@@ -118,6 +166,29 @@ export default function PrescriptionForm() {
     }
   };
 
+  const handleCancel = async () => {
+    // If we have a temporary prescription ID (from reuse), delete it first
+    if (prescriptionId && isReuse) {
+      try {
+        console.log("Deleting temporary prescription:", prescriptionId);
+        const response = await fetch(`/api/prescription/${prescriptionId}`, {
+          method: "DELETE",
+        });
+        
+        if (!response.ok) {
+          console.error("Failed to delete temporary prescription");
+        } else {
+          console.log("Successfully deleted temporary prescription");
+        }
+      } catch (err) {
+        console.error("Error deleting temporary prescription:", err);
+      }
+    }
+    
+    // Navigate back
+    router.back();
+  };
+
   return (
     <form onSubmit={handleSubmit} className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
       {error && (
@@ -128,11 +199,12 @@ export default function PrescriptionForm() {
 
       <div className="space-y-6">
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-800">Patient Information</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2">Patient Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="label">
-                <span className="text-gray-700">Name</span>
+                <span className="text-gray-700">Patient Name</span>
+                <span className="label-text-alt text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -140,11 +212,13 @@ export default function PrescriptionForm() {
                 value={patientData.name}
                 onChange={(e) => setPatientData({ ...patientData, name: e.target.value })}
                 required
+                placeholder="Enter patient's full name"
               />
             </div>
             <div>
               <label className="label">
                 <span className="text-gray-700">Phone Number</span>
+                <span className="label-text-alt text-red-500">*</span>
               </label>
               <input
                 type="tel"
@@ -152,11 +226,69 @@ export default function PrescriptionForm() {
                 value={patientData.phoneNumber}
                 onChange={(e) => setPatientData({ ...patientData, phoneNumber: e.target.value })}
                 required
+                placeholder="e.g. 8888888888"
               />
             </div>
+            
             <div>
               <label className="label">
+                <span className="text-gray-700">Age</span>
+              </label>
+              <input
+                type="number"
+                min="1"
+                className="input input-bordered w-full text-gray-800 bg-white"
+                value={patientData.age}
+                onChange={(e) => setPatientData({ ...patientData, age: e.target.value })}
+                placeholder="e.g. 35"
+              />
+            </div>
+            
+            <div>
+              <label className="label">
+                <span className="text-gray-700">Gender</span>
+              </label>
+              <select
+                className="select select-bordered w-full text-gray-800 bg-white"
+                value={patientData.gender}
+                onChange={(e) => setPatientData({ ...patientData, gender: e.target.value })}
+              >
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="label">
+                <span className="text-gray-700">City</span>
+              </label>
+              <input
+                type="text"
+                className="input input-bordered w-full text-gray-800 bg-white"
+                value={patientData.city}
+                onChange={(e) => setPatientData({ ...patientData, city: e.target.value })}
+                placeholder="e.g. Panaji"
+              />
+            </div>
+            
+            <div>
+              <label className="label">
+                <span className="text-gray-700">State</span>
+              </label>
+              <input
+                type="text"
+                className="input input-bordered w-full text-gray-800 bg-white"
+                value={patientData.state}
+                onChange={(e) => setPatientData({ ...patientData, state: e.target.value })}
+                placeholder="e.g. Goa"
+              />
+            </div>
+            
+            <div className="md:col-span-2">
+              <label className="label">
                 <span className="text-gray-700">Diagnosis</span>
+                <span className="label-text-alt text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -164,13 +296,14 @@ export default function PrescriptionForm() {
                 value={patientData.diagnosis}
                 onChange={(e) => setPatientData({ ...patientData, diagnosis: e.target.value })}
                 required
+                placeholder="e.g. Fever, Common cold, etc."
               />
             </div>
           </div>
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-800">Prescription Details</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2">Prescription Details</h2>
           {selectedMedicines.map((med, index) => (
             <div key={index} className="p-6 border-2 border-base-200 rounded-xl space-y-4 bg-base-100 shadow-sm hover:shadow-md transition-all">
               <div className="flex flex-col md:flex-row justify-between gap-4">
@@ -366,7 +499,14 @@ export default function PrescriptionForm() {
           </button>
         </section>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-4">
+          <button
+            type="button"
+            className="btn btn-outline btn-error btn-lg w-48 text-lg font-semibold"
+            onClick={handleCancel}
+          >
+            Cancel
+          </button>
           <button
             type="submit"
             className="btn btn-primary btn-lg w-48 text-lg font-semibold"

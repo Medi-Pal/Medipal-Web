@@ -2,7 +2,7 @@
 import AdminDoctorTable from "@/app/components/AdminDoctorTable";
 import { Doctor } from "../../../../../utils/types";
 import { useEffect, useState } from "react";
-import { useSearch } from "../layout";
+import { useSearch } from "../searchContext";
 
 export default function () {
   const [doctors, setDoctors] = useState<Doctor[]>([]);

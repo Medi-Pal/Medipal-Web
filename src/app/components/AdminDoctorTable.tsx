@@ -130,12 +130,67 @@ function TableItem({ doctor, onVerificationToggle, isUpdating }: TableItemProps)
         }
     };
 
+    const [showLicenseModal, setShowLicenseModal] = useState(false);
+
     return (
         <tr className="border-b border-gray-200 hover:bg-gray-50">
             <td className="text-base font-medium text-gray-900 p-4">{doctor.name}</td>
             <td className="text-base text-gray-900 p-4">{doctor.specialisation}</td>
             <td className="text-base text-gray-900 p-4">{doctor.phoneNumber}</td>
-            <td className="text-base text-gray-900 p-4">{doctor.medicalLicense}</td>
+            <td className="text-base text-gray-900 p-4">
+                {doctor.licenseImageUrl ? (
+                    <>
+                        <button 
+                            onClick={() => setShowLicenseModal(true)}
+                            className="btn btn-sm btn-info"
+                        >
+                            View License
+                        </button>
+                        
+                        {/* License Modal */}
+                        {showLicenseModal && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                                <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+                                    <div className="p-4 border-b flex justify-between items-center">
+                                        <h3 className="text-xl font-semibold">Medical License</h3>
+                                        <button 
+                                            onClick={() => setShowLicenseModal(false)}
+                                            className="btn btn-sm btn-circle"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                    <div className="p-4 overflow-auto flex-1">
+                                        <img 
+                                            src={doctor.licenseImageUrl} 
+                                            alt="Medical License" 
+                                            className="max-w-full h-auto mx-auto"
+                                        />
+                                    </div>
+                                    <div className="p-4 border-t flex justify-between">
+                                        <a 
+                                            href={doctor.licenseImageUrl} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="btn btn-primary"
+                                        >
+                                            Open in New Tab
+                                        </a>
+                                        <button 
+                                            onClick={() => setShowLicenseModal(false)}
+                                            className="btn btn-outline"
+                                        >
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    <span className="text-red-500">No license uploaded</span>
+                )}
+            </td>
             <td className="text-base text-gray-900 p-4">
                 <span className={`px-2 py-1 rounded-full text-sm ${doctor.isVerified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
                     {doctor.isVerified ? 'Verified' : 'Pending'}

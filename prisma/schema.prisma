@@ -29,6 +29,7 @@ model Doctor {
   ContactNumber   String
   Email           String         @unique
   password        String
+  licenseImageUrl String?        
   isVerified      Boolean        @default(false)
   Prescription    Prescription[]
   doctor_session  Session[]
@@ -84,6 +85,7 @@ model Patient {
   PhoneNumber     String               @id
   Name            String
   Age             Int?
+  Gender          String?
   City            String?
   State           String
   Country         String
