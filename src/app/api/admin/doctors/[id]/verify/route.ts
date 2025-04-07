@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { sendEmail } from "@/lib/utils";
 
 // Toggle the isVerified status of a doctor
 export async function POST(
@@ -14,7 +15,7 @@ export async function POST(
     // Find the doctor first to get their current verification status
     const doctor = await prisma.doctor.findUnique({
       where: { Registration_No: id },
-      select: { isVerified: true, Name: true },
+      select: { isVerified: true, Name: true, Email: true },
     });
 
     if (!doctor) {
@@ -36,6 +37,41 @@ export async function POST(
     console.log(
       `Doctor ${id} (${doctor.Name}) verification status updated to: ${updatedDoctor.isVerified}`
     );
+
+    // Send email notification to the doctor
+    if (doctor.Email) {
+      try {
+        const emailStatus = newStatus ? "approved" : "revoked";
+        
+        const emailText = `
+Hello Dr. ${doctor.Name},
+
+Your account verification status has been ${emailStatus} by an administrator.
+
+${newStatus 
+  ? `You can now log in to your Medipal account and start using the platform.` 
+  : `Your access to the Medipal platform has been temporarily suspended. Please contact support for more information.`
+}
+
+If you have any questions, please contact our support team.
+
+Thank you,
+The Medipal Team
+        `;
+        
+        await sendEmail({
+          to: doctor.Email,
+          subject: `Your Medipal account verification status has been ${emailStatus}`,
+          text: emailText
+        });
+        
+        console.log(`Notification email sent successfully to ${doctor.Email}`);
+      } catch (emailError) {
+        console.error(`Error while sending notification email to ${doctor.Email}:`, emailError);
+      }
+    } else {
+      console.log(`No email found for doctor ${id}, notification email not sent`);
+    }
 
     return NextResponse.json(
       {
